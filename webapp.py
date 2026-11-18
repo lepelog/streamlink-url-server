@@ -3,7 +3,9 @@
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse
-import streamlink
+from streamlink import Streamlink
+
+streamlink = Streamlink()
 
 class WebRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -13,12 +15,16 @@ class WebRequestHandler(BaseHTTPRequestHandler):
             self.send_error(404)
             return
         try:
-            streams = streamlink.streams(path)
-            out_streams = {k: json.loads(v.json) for k, v in streams.items()}
+            _pluginname, pluginclass, resolved_url = streamlink.resolve_url(url)
+            plugin = pluginclass(streamlink, resolved_url, options)
+            streams = plugin.streams()
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.end_headers()
-            self.wfile.write(json.dumps(out_streams).encode("utf-8"))
+            self.wfile.write(json.dumps({
+                "streams": {k: json.loads(v.json) for k, v in streams.items()},
+                "metadata": plugin.get_metadata()
+            }).encode("utf-8"))
         except Exception as e:
             self.send_error(400, f"Error: {e}")
             return
