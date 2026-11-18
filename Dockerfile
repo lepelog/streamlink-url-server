@@ -1,6 +1,7 @@
 FROM python:3.15-alpine
 
-RUN pip install https://github.com/lepelog/streamlink/archive/refs/heads/twitch-stream-start.zip
+COPY requirements.txt /
+RUN pip install -r requirements.txt
 COPY webapp.py /
 
 ENTRYPOINT ["python3", "webapp.py"]

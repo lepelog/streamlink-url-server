@@ -1,1 +1,3 @@
 https://github.com/lepelog/streamlink/archive/refs/heads/twitch-stream-start.zip
+flask<4
+waitress<4
